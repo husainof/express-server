@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 
 import UserModel from "../models/User.js";
 
+const SECRET_KEY = process.env.SECRET_KEY;
+
 export default class {
   static getMe = async (req, res) => {
     try {
@@ -32,6 +34,13 @@ export default class {
         return res.status(400).json(errors.array());
       }
 
+      // Проверяем нет ли такого пользователя
+
+      const candidate = await UserModel.findOne({ fullName: req.body.fullName })
+      if (candidate) {
+        throw new Error(`Пользователь с именем ${req.body.fullName} уже существует`)
+      }
+
       // Шифруем пароль
       const password = req.body.password;
       const salt = await bcrypt.genSalt(10);
@@ -52,7 +61,7 @@ export default class {
         {
           _id: user._id,
         },
-        "sercer123",
+        SECRET_KEY,
         {
           expiresIn: "30d",
         }
@@ -70,7 +79,7 @@ export default class {
       });
     }
   };
-  static auth = async (req, res) => {
+  static login = async (req, res) => {
     try {
       // Ищем user  в базе данных
       const user = await UserModel.findOne({ email: req.body.email });
@@ -99,7 +108,7 @@ export default class {
         {
           _id: user._id,
         },
-        "sercer123", // нужно выделить в отдельный файл
+        SECRET_KEY, // нужно выделить в отдельный файл
         {
           expiresIn: "30d", // тоже самое
         }

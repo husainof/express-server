@@ -1,5 +1,5 @@
 import express from "express";
-
+import * as dotnev from 'dotenv';
 import mongoose from "mongoose";
 
 import { registerValidation } from "./validations/auth.js";
@@ -7,6 +7,7 @@ import { registerValidation } from "./validations/auth.js";
 import checkAuth from "./utils/checkAuth.js";
 import UserController from "./controllers/UserController.js";
 
+dotnev.config()
 // Подключение бд
 mongoose.set("strictQuery", false);
 mongoose
@@ -29,9 +30,9 @@ app.get("/me", checkAuth, UserController.getMe);
 app.post("/register", registerValidation, UserController.register);
 
 // Авторизация
-app.post("/login", UserController.auth);
+app.post("/login", UserController.login);
 
 // Запуск сервера
-app.listen(4444, (err) =>
+app.listen(5000, (err) =>
   err ? console.log(err) : console.log("Server is running")
 );
